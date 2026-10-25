@@ -22,9 +22,9 @@ export default function Admin() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       authResolved = true;
       
-      if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
-        // Redirect to the live store subdomain instead of just '/'
-        window.location.href = 'https://store.galatic.indevs.in'; 
+if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+   navigate('/login'); // Go to the login page so you can log in
+}
       } else {
         setCheckingAuth(false);
       }
