@@ -6,7 +6,6 @@ import { db, auth } from '../firebase';
 import { collection, doc, updateDoc, addDoc, deleteDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import toast from 'react-hot-toast';
-import emailjs from '@emailjs/browser';
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
@@ -44,7 +43,7 @@ export default function Cart() {
       toast.success("Removed from cart");
       
       if (cartItems.length === 1) {
-        navigate('/store');
+        navigate('/');
       }
     } catch (error) {
       toast.error("Failed to remove item");
@@ -59,13 +58,13 @@ export default function Cart() {
     try {
       const totalAmount = cartItems.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.]/g, '')), 0).toFixed(2);
       
-      // 1. Create the Order in Firestore with 'Unpaid' status
+      // 1. Create the Order in Firestore
       const orderRef = await addDoc(collection(db, "orders"), {
         userId: user.uid,
         userEmail: user.email,
         items: cartItems,
         totalAmount: totalAmount,
-        status: 'Unpaid', // CHANGED FROM 'Pending' to 'Unpaid'
+        status: 'Unpaid', // Status is Unpaid until the user pays
         createdAt: new Date()
       });
 
@@ -82,37 +81,13 @@ export default function Cart() {
         }
       }
 
-      // 3. Send Email Confirmation via EmailJS
-      
-      // Convert the array of items into a single readable string
-      const itemsString = cartItems.map(item => `${item.title} - ৳${item.price}`).join('\n');
-
-      const emailParams = {
-        to_name: user.email,
-        order_id: orderRef.id,
-        total_amount: totalAmount,
-        items_list: itemsString // <-- Send the string, not the array
-      };
-
-try {
-  await emailjs.send(
-    'service_hjrrabc',       // <-- Your real Service ID
-    'template_wjvsq8m',      // <-- Your real Template ID
-    emailParams,
-    'u4xSqN4Kce2ST79ur'   // <-- Your real Public Key
-  );
-  console.log("Confirmation email sent successfully.");
-} catch (emailError) {
-  console.error("Failed to send email:", emailError);
-}
-
-      // 4. Clear the Cart
+      // 3. Clear the Cart
       for (const item of cartItems) {
         await deleteDoc(doc(db, `carts/${user.uid}/items`, item.id));
       }
 
       toast.success("Order placed successfully! Please proceed to payment.", { id: loadingToast });
-      navigate('/store/orders'); 
+      navigate('/orders'); 
     } catch (error) {
       console.error("Checkout error: ", error);
       toast.error("Checkout failed. Please try again.", { id: loadingToast });
@@ -144,7 +119,7 @@ try {
         {cartItems.length === 0 ? (
           <div className="text-center py-20 bg-galatic-slate/10 rounded-2xl border border-galatic-slate/20">
             <p className="text-galatic-sky text-xl mb-4">Your cart is empty.</p>
-            <Link to="/store" className="text-galatic-cream hover:underline">Browse Games &rarr;</Link>
+            <Link to="/" className="text-galatic-cream hover:underline">Browse Games &rarr;</Link>
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">

@@ -10,7 +10,6 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase'; 
 import { ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
-import emailjs from '@emailjs/browser'; // IMPORT EMAILJS
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -38,22 +37,6 @@ export default function Login() {
     }
   };
 
-  const sendWelcomeEmail = async (userEmail) => {
-    try {
-      await emailjs.send(
-        'service_hjrrabc',        // <-- YOUR SERVICE ID
-        'template_ntow3lm', // <-- PASTE YOUR NEW WELCOME TEMPLATE ID HERE
-        {
-          to_name: userEmail
-        },
-        'u4xSqN4Kce2ST79ur'       // <-- YOUR PUBLIC KEY
-      );
-      console.log("Welcome email sent!");
-    } catch (error) {
-      console.error("Failed to send welcome email: ", error);
-    }
-  };
-
   const handleAuth = async (e) => {
     e.preventDefault();
     try {
@@ -63,19 +46,16 @@ export default function Login() {
         
         toast.success("Logged in successfully!");
         if (userCredential.user.email === 'notgalatic@gmail.com') {
-          navigate('/admin');
+          navigate('/');
         } else {
-          navigate('/store'); 
+          navigate('/'); 
         }
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await saveUserToDB(userCredential.user);
         
-        // SEND WELCOME EMAIL ON SIGNUP
-        await sendWelcomeEmail(email);
-
-        toast.success("Account created! Check your email.");
-        navigate('/store');
+        toast.success("Account created successfully!");
+        navigate('/');
       }
     } catch (err) {
       toast.error(err.message);
@@ -87,23 +67,13 @@ export default function Login() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       
-      // Check if user is new before saving/sending email
-      const userRef = doc(db, "users", result.user.uid);
-      const docSnap = await getDoc(userRef);
-      const isNewUser = !docSnap.exists();
-
       await saveUserToDB(result.user);
-      
-      // SEND WELCOME EMAIL IF NEW GOOGLE USER
-      if (isNewUser) {
-        await sendWelcomeEmail(result.user.email);
-      }
       
       toast.success("Logged in with Google!");
       if (result.user.email === 'notgalatic@gmail.com') {
-        navigate('/admin');
+        navigate('/');
       } else {
-        navigate('/store');
+        navigate('/');
       }
     } catch (err) {
       toast.error(err.message);
