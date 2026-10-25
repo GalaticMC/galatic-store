@@ -59,7 +59,7 @@ export default function Home() {
         category: game.category
       });
       toast.success(`${game.title} added to cart!`);
-      navigate('/store/cart'); // REDIRECT TO CART
+      navigate('/cart');
     } catch (error) {
       console.error("Cart error:", error);
       toast.error("Failed to add to cart");
@@ -154,7 +154,7 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <button className="p-2 bg-galatic-slate/20 rounded-full hover:bg-galatic-slate/40 transition-colors"><Bell className="w-5 h-5" /></button>
             <div 
-              onClick={() => navigate('/store/account')}
+              onClick={() => navigate('/account')}
               className="flex items-center gap-3 bg-galatic-slate/20 rounded-full pl-2 pr-4 py-1.5 border border-galatic-slate/30 cursor-pointer hover:bg-galatic-slate/40 transition-colors"
             >
               <div className="bg-galatic-cream p-1.5 rounded-full"><User className="w-4 h-4 text-galatic-navy" /></div>
@@ -202,7 +202,7 @@ export default function Home() {
                 <h2 className="text-2xl font-bold text-white mb-4">Browse Categories</h2>
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                   {categories.map((cat, index) => (
-                    <button key={index} onClick={() => navigate(`/store/games?category=${cat}`)} className="px-6 py-3 bg-galatic-slate/20 border border-galatic-slate/50 rounded-xl whitespace-nowrap text-galatic-sky font-bold hover:bg-galatic-slate hover:text-white transition-all">
+                    <button key={index} onClick={() => navigate(`/games?category=${cat}`)} className="px-6 py-3 bg-galatic-slate/20 border border-galatic-slate/50 rounded-xl whitespace-nowrap text-galatic-sky font-bold hover:bg-galatic-slate hover:text-white transition-all">
                       {cat}
                     </button>
                   ))}
@@ -229,7 +229,7 @@ export default function Home() {
                   <section className="mb-12">
                     <div className="flex justify-between items-end mb-6">
                       <h2 className="text-2xl font-bold text-white flex items-center gap-2">🏷️ BIGGEST DISCOUNTS</h2>
-                      <button onClick={() => navigate('/store/games?filter=bigdiscount')} className="text-galatic-sky hover:text-white text-sm font-medium">View All &gt;</button>
+                      <button onClick={() => navigate('/games?filter=bigdiscount')} className="text-galatic-sky hover:text-white text-sm font-medium">View All &gt;</button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {bigDiscountGames.map((game) => <GameCard key={game.id} game={game} />)}
@@ -241,7 +241,7 @@ export default function Home() {
                   <section className="mb-12">
                     <div className="flex justify-between items-end mb-6">
                       <h2 className="text-2xl font-bold text-white flex items-center gap-2">✨ RECOMMENDED</h2>
-                      <button onClick={() => navigate('/store/games?filter=recommended')} className="text-galatic-sky hover:text-white text-sm font-medium">View All &gt;</button>
+                      <button onClick={() => navigate('/games?filter=recommended')} className="text-galatic-sky hover:text-white text-sm font-medium">View All &gt;</button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {recommendedGames.map((game) => <GameCard key={game.id} game={game} />)}
@@ -253,7 +253,7 @@ export default function Home() {
                   <section className="mb-12">
                     <div className="flex justify-between items-end mb-6">
                       <h2 className="text-2xl font-bold text-white flex items-center gap-2">🔥 MOST SELLING</h2>
-                      <button onClick={() => navigate('/store/games?filter=mostselling')} className="text-galatic-sky hover:text-white text-sm font-medium">View All &gt;</button>
+                      <button onClick={() => navigate('/games?filter=mostselling')} className="text-galatic-sky hover:text-white text-sm font-medium">View All &gt;</button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {mostSellingGames.map((game) => <GameCard key={game.id} game={game} />)}
