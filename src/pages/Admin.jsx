@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
-import AdminSidebar from '../components/AdminSidebar'; // IMPORT COMPONENT
+import AdminSidebar from '../components/AdminSidebar';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 
 export default function Admin() {
@@ -17,15 +17,31 @@ export default function Admin() {
   const ADMIN_EMAIL = 'notgalatic@gmail.com'; 
 
   useEffect(() => {
+    let authResolved = false;
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      authResolved = true;
+      
       if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
-        navigate('/'); 
+        // Redirect to the live store subdomain instead of just '/'
+        window.location.href = 'https://store.galatic.indevs.in'; 
       } else {
         setCheckingAuth(false);
       }
     });
-    return () => unsubscribe();
-  }, [navigate]);
+
+    // If Firebase takes too long (more than 2 seconds), assume they are not logged in
+    const timeout = setTimeout(() => {
+      if (!authResolved) {
+        window.location.href = 'https://store.galatic.indevs.in';
+      }
+    }, 2000);
+
+    return () => {
+      unsubscribe();
+      clearTimeout(timeout);
+    };
+  }, []);
 
   const fetchData = async () => {
     setLoadingGames(true);
@@ -77,7 +93,7 @@ export default function Admin() {
   return (
     <div className="flex min-h-screen bg-galatic-navy text-white">
       
-      <AdminSidebar /> {/* USE COMPONENT */}
+      <AdminSidebar />
 
       <div className="ml-64 flex-1 p-8">
         <h2 className="text-3xl font-bold mb-8">Dashboard Overview</h2>
@@ -99,7 +115,7 @@ export default function Admin() {
 
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-2xl font-bold">Manage Products</h3>
-          <Link to="/admin/add-game" className="bg-galatic-cream text-galatic-navy px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-white transition-all"><PlusCircle className="w-4 h-4" /> Add New</Link>
+          <Link to="/add-game" className="bg-galatic-cream text-galatic-navy px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-white transition-all"><PlusCircle className="w-4 h-4" /> Add New</Link>
         </div>
 
         <div className="bg-galatic-slate/20 rounded-2xl border border-galatic-slate/50 overflow-hidden">
@@ -125,9 +141,9 @@ export default function Admin() {
                       <span className="font-bold text-white">{game.title}</span>
                     </td>
                     <td className="p-4 text-galatic-sky/70">{game.category}</td>
-                    <td className="p-4 text-galatic-cream font-bold">{game.price}</td>
+                    <td className="p-4 text-galatic-cream font-bold">৳{game.price}</td>
                     <td className="p-4 flex justify-end gap-2">
-                      <Link to={`/admin/edit-game/${game.id}`} className="p-2 bg-galatic-slate/30 rounded hover:bg-galatic-sky/20 text-galatic-sky transition-colors" title="Edit">
+                      <Link to={`/edit-game/${game.id}`} className="p-2 bg-galatic-slate/30 rounded hover:bg-galatic-sky/20 text-galatic-sky transition-colors" title="Edit">
                         <Edit className="w-4 h-4" />
                       </Link>
                       <button onClick={() => handleDelete(game.id)} className="p-2 bg-red-500/10 rounded hover:bg-red-500/30 text-red-400 transition-colors" title="Delete">
