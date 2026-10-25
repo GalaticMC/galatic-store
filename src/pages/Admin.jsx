@@ -22,18 +22,16 @@ export default function Admin() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       authResolved = true;
       
-if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
-   navigate('/login'); // Go to the login page so you can log in
-}
+      if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+        navigate('/login'); // Send to login page on the admin domain
       } else {
         setCheckingAuth(false);
       }
     });
 
-    // If Firebase takes too long (more than 2 seconds), assume they are not logged in
     const timeout = setTimeout(() => {
       if (!authResolved) {
-        window.location.href = 'https://store.galatic.indevs.in';
+        navigate('/login');
       }
     }, 2000);
 
@@ -41,7 +39,7 @@ if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
       unsubscribe();
       clearTimeout(timeout);
     };
-  }, []);
+  }, [navigate]);
 
   const fetchData = async () => {
     setLoadingGames(true);

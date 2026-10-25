@@ -24,19 +24,18 @@ import AdminCarts from './pages/AdminCarts';
 import AdminTopUps from './pages/AdminTopUps';
 
 export default function App() {
-  // This checks if the user is on the admin subdomain
   const isAdminSubdomain = window.location.hostname.startsWith('admin');
 
   return (
     <BrowserRouter>
       <Toaster position="top-center" toastOptions={{ style: { background: '#021a2b', color: '#ffebc2', border: '1px solid #416f9f' } }} />
       <Routes>
-        
-        {/* ============================================== */}
-        {/* ADMIN ROUTES (admin.galatic.indevs.in)         */}
-        {/* ============================================== */}
         {isAdminSubdomain ? (
           <>
+            {/* Admin Login Route */}
+            <Route path="/login" element={<Login />} />
+            
+            {/* Admin Routes */}
             <Route path="/" element={<Admin />} />
             <Route path="/add-game" element={<AdminAddGame />} />
             <Route path="/edit-game/:id" element={<AdminEditGame />} />
@@ -50,10 +49,6 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
         ) : (
-          
-          /* ============================================== */
-          /* STORE ROUTES (store.galatic.indevs.in)         */
-          /* ============================================== */
           <>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
