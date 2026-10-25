@@ -8,7 +8,7 @@ import { Wallet, CheckCircle, XCircle, Search, Loader } from 'lucide-react';
 export default function AdminTopUps() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [processingId, setProcessingId] = useState(null); // Prevents double clicks
+  const [processingId, setProcessingId] = useState(null);
   const [adminTrxInputs, setAdminTrxInputs] = useState({});
 
   useEffect(() => {
@@ -29,7 +29,6 @@ export default function AdminTopUps() {
   };
 
   const handleVerifyAndApprove = async (req) => {
-    // 1. Check if we are already processing this specific request
     if (processingId === req.id) return;
     
     const adminTypedTrx = adminTrxInputs[req.id];
@@ -44,14 +43,10 @@ export default function AdminTopUps() {
       return;
     }
 
-    // 2. Lock the button visually
     setProcessingId(req.id);
 
     try {
       const reqRef = doc(db, "topup_requests", req.id);
-      
-      // 3. DOUBLE CHECK: Fetch the latest version of the request from the database
-      // This prevents approving an order that was just approved in another tab or by a double-click
       const latestReqSnap = await getDoc(reqRef);
       
       if (!latestReqSnap.exists() || latestReqSnap.data().status === 'Approved') {
@@ -60,11 +55,9 @@ export default function AdminTopUps() {
         return; 
       }
 
-      // 4. Get user document
       const userRef = doc(db, "users", req.userId);
       const userSnap = await getDoc(userRef);
       
-      // 5. Add amount to user's balance
       if (userSnap.exists()) {
         const currentBalanceStr = userSnap.data().totalSpent || '৳0';
         const currentBalance = parseFloat(currentBalanceStr.replace(/[^0-9.]/g, '')) || 0;
@@ -75,7 +68,6 @@ export default function AdminTopUps() {
         });
       }
 
-      // 6. Mark request as Approved LAST to finalize it
       await updateDoc(reqRef, { status: 'Approved' });
       
       toast.success(`Verified! Approved ৳${req.amount} for ${req.userEmail}`);

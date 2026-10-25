@@ -69,7 +69,6 @@ export default function AdminOrders() {
     return matchesSearch && matchesStatus;
   });
 
-  // REMOVED 'Pending' FROM THIS LIST
   const statuses = ['All', 'Paid', 'Unpaid', 'Completed', 'Cancelled'];
 
   return (
@@ -133,7 +132,7 @@ export default function AdminOrders() {
             filteredOrders.map((order) => (
               <div 
                 key={order.id} 
-                onClick={() => navigate(`/admin/orders/${order.id}`)}
+                onClick={() => navigate(`/orders/${order.id}`)} // FIXED
                 className="bg-galatic-slate/20 border border-galatic-slate/50 rounded-2xl p-6 cursor-pointer hover:bg-galatic-slate/30 hover:border-galatic-sky/50 transition-all duration-200 group relative"
               >
                 <div className="flex justify-between items-start mb-4 border-b border-galatic-slate/30 pb-4">

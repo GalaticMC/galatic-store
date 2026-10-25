@@ -23,13 +23,12 @@ export default function AdminOrderDetails() {
         if (docSnap.exists()) {
           const data = docSnap.data();
           setOrder({ id: docSnap.id, ...data });
-          setStatus(data.status || 'Unpaid'); // Default to Unpaid now
+          setStatus(data.status || 'Unpaid');
         } else {
           toast.error("Order not found!");
-          navigate('/admin/orders');
+          navigate('/orders');
         }
       } catch (error) {
-        console.error("Error fetching order: ", error);
         toast.error("Failed to load order.");
       }
       setLoading(false);
@@ -44,36 +43,23 @@ export default function AdminOrderDetails() {
       const orderRef = doc(db, "orders", orderId);
       await updateDoc(orderRef, { status: status });
       toast.success("Order status updated!");
-      navigate('/admin/orders');
+      navigate('/orders');
     } catch (error) {
-      console.error("Error updating status: ", error);
       toast.error("Failed to update order status.");
     }
     setSaving(false);
   };
 
-  if (loading) return (
-    <div className="flex min-h-screen bg-galatic-navy text-white">
-      <AdminSidebar />
-      <div className="ml-64 flex-1 flex items-center justify-center">Loading order details...</div>
-    </div>
-  );
-
+  if (loading) return <div className="min-h-screen bg-galatic-navy text-white flex items-center justify-center">Loading...</div>;
   if (!order) return null;
 
-  const orderDate = order.createdAt?.toDate 
-    ? order.createdAt.toDate().toLocaleString() 
-    : 'N/A';
+  const orderDate = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString() : 'N/A';
 
   return (
     <div className="flex min-h-screen bg-galatic-navy text-white">
       <AdminSidebar />
-
       <div className="ml-64 flex-1 p-8">
-        <button 
-          onClick={() => navigate('/admin/orders')} 
-          className="flex items-center gap-2 text-galatic-sky hover:text-white mb-6 transition-colors"
-        >
+        <button onClick={() => navigate('/orders')} className="flex items-center gap-2 text-galatic-sky hover:text-white mb-6 transition-colors">
           <ArrowLeft className="w-5 h-5" /> Back to Orders
         </button>
 
@@ -89,22 +75,13 @@ export default function AdminOrderDetails() {
             <form onSubmit={handleUpdateStatus} className="flex flex-col items-end gap-3">
               <label className="text-sm font-bold text-galatic-sky">Update Status:</label>
               <div className="flex gap-2">
-                <select 
-                  value={status} 
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="bg-galatic-navy border border-galatic-slate rounded-lg p-2 text-white focus:outline-none focus:border-galatic-sky"
-                >
-                  {/* PENDING REMOVED */}
+                <select value={status} onChange={(e) => setStatus(e.target.value)} className="bg-galatic-navy border border-galatic-slate rounded-lg p-2 text-white focus:outline-none focus:border-galatic-sky">
                   <option value="Unpaid">Unpaid</option>
                   <option value="Paid">Paid</option>
                   <option value="Cancelled">Cancelled</option>
                   <option value="Completed">Completed</option>
                 </select>
-                <button 
-                  type="submit" 
-                  disabled={saving}
-                  className="bg-galatic-cream text-galatic-navy px-4 py-2 rounded-lg font-bold hover:bg-white transition-all flex items-center gap-2"
-                >
+                <button type="submit" disabled={saving} className="bg-galatic-cream text-galatic-navy px-4 py-2 rounded-lg font-bold hover:bg-white transition-all flex items-center gap-2">
                   <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Update'}
                 </button>
               </div>

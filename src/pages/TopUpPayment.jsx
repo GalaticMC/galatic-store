@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 import Sidebar from '../components/Sidebar';
 import { ArrowLeft, CheckCircle2, Copy } from 'lucide-react';
 
-// IMPORT THE LOGOS
 import bkashLogo from '../assets/bkash.png';
 import nagadLogo from '../assets/nagad.png';
 
@@ -27,7 +26,7 @@ export default function TopUpPayment() {
         setRequest(docSnap.data());
       } else {
         toast.error("Invalid request.");
-        navigate('/store/account');
+        navigate('/account'); // FIXED
       }
       setLoading(false);
     };
@@ -56,20 +55,14 @@ export default function TopUpPayment() {
       });
       
       toast.success("Verification submitted! Please wait for admin approval.");
-      navigate('/store/account');
+      navigate('/account'); // FIXED
     } catch (error) {
       toast.error("Failed to submit verification.");
       setProcessing(false);
     }
   };
 
-  if (loading) return (
-    <div className="flex min-h-screen bg-galatic-navy text-white">
-      <Sidebar />
-      <div className="ml-64 flex-1 flex items-center justify-center">Loading...</div>
-    </div>
-  );
-
+  if (loading) return <div className="min-h-screen bg-galatic-navy text-white flex items-center justify-center">Loading...</div>;
   if (!request) return null;
 
   const isBkash = request.method === 'bkash';
@@ -82,8 +75,7 @@ export default function TopUpPayment() {
       <Sidebar />
       <div className="ml-64 flex-1 p-8 flex justify-center items-start">
         <div className="w-full max-w-xl mt-8">
-          
-          <button onClick={() => navigate('/store/account')} className="flex items-center gap-2 text-galatic-sky hover:text-white mb-6 transition-colors">
+          <button onClick={() => navigate('/account')} className="flex items-center gap-2 text-galatic-sky hover:text-white mb-6 transition-colors"> {/* FIXED */}
             <ArrowLeft className="w-5 h-5" /> Cancel and go back
           </button>
 
@@ -94,7 +86,6 @@ export default function TopUpPayment() {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Instructions Card */}
               <div className="bg-galatic-navy/50 border border-galatic-slate/30 rounded-xl p-6 text-center">
                 <div className="flex flex-col items-center justify-center mb-4">
                   <img src={methodLogo} alt={methodName} className="h-16 w-16 object-contain mb-3 rounded-xl" />
@@ -110,7 +101,6 @@ export default function TopUpPayment() {
                 <p className="text-sm text-red-400 font-bold">Amount: ৳{request.amount}</p>
               </div>
 
-              {/* Verification Form */}
               <form onSubmit={handleVerify} className="space-y-4 pt-4 border-t border-galatic-slate/30">
                 <h3 className="text-lg font-bold text-white">Submit Verification</h3>
                 
@@ -124,15 +114,10 @@ export default function TopUpPayment() {
                   <input required type="text" value={trxId} onChange={(e) => setTrxId(e.target.value)} placeholder="e.g. 9A7B6C5D4E" className="w-full bg-galatic-navy border border-galatic-slate rounded-lg p-3 text-white focus:outline-none focus:border-galatic-sky" />
                 </div>
 
-                <button 
-                  type="submit" 
-                  disabled={processing}
-                  className="w-full bg-galatic-cream text-galatic-navy font-bold py-4 rounded-xl hover:bg-white transition-all flex justify-center items-center gap-2 mt-4"
-                >
+                <button type="submit" disabled={processing} className="w-full bg-galatic-cream text-galatic-navy font-bold py-4 rounded-xl hover:bg-white transition-all flex justify-center items-center gap-2 mt-4">
                   <CheckCircle2 className="w-5 h-5" /> {processing ? 'Submitting...' : 'Verify Payment'}
                 </button>
               </form>
-
             </div>
           </div>
         </div>

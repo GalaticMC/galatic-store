@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Edit, Trash2 } from 'lucide-react';
-import { db, auth } from '../firebase';
+import { db } from '../firebase';
 import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
-import AdminSidebar from '../components/AdminSidebar'; // IMPORT COMPONENT
+import AdminSidebar from '../components/AdminSidebar';
 
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   const fetchCustomers = async () => {
     setLoading(true);
@@ -59,9 +58,7 @@ export default function AdminCustomers() {
 
   return (
     <div className="flex min-h-screen bg-galatic-navy text-white">
-      
-      <AdminSidebar /> {/* USE COMPONENT */}
-
+      <AdminSidebar />
       <div className="ml-64 flex-1 p-8">
         <div className="flex items-center gap-3 mb-8">
           <Users className="w-8 h-8 text-galatic-cream" />
@@ -103,7 +100,7 @@ export default function AdminCustomers() {
                       </span>
                     </td>
                     <td className="p-4 flex justify-end gap-2">
-                      <Link to={`/admin/customers/edit/${customer.id}`} className="p-2 bg-galatic-slate/30 rounded hover:bg-galatic-sky/20 text-galatic-sky transition-colors" title="Edit">
+                      <Link to={`/customers/edit/${customer.id}`} className="p-2 bg-galatic-slate/30 rounded hover:bg-galatic-sky/20 text-galatic-sky transition-colors" title="Edit">
                         <Edit className="w-4 h-4" />
                       </Link>
                       <button onClick={() => handleDelete(customer.id)} className="p-2 bg-red-500/10 rounded hover:bg-red-500/30 text-red-400 transition-colors" title="Delete">

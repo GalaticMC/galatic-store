@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import toast from 'react-hot-toast';
-import AdminSidebar from '../components/AdminSidebar'; // IMPORT COMPONENT
-import { Save } from 'lucide-react';
+import AdminSidebar from '../components/AdminSidebar';
+import { Save, ArrowLeft } from 'lucide-react';
 
 export default function AdminEditCustomer() {
   const { id } = useParams();
@@ -20,7 +20,7 @@ export default function AdminEditCustomer() {
         setFormData(docSnap.data());
       } else {
         toast.error("User not found!");
-        navigate('/admin/customers');
+        navigate('/customers');
       }
       setLoading(false);
     };
@@ -38,7 +38,7 @@ export default function AdminEditCustomer() {
         totalSpent: formData.totalSpent
       });
       toast.success("Customer updated successfully!");
-      navigate('/admin/customers');
+      navigate('/customers');
     } catch (error) {
       console.error("Error updating: ", error);
       toast.error("Failed to update customer.");
@@ -49,11 +49,14 @@ export default function AdminEditCustomer() {
 
   return (
     <div className="flex min-h-screen bg-galatic-navy text-white">
-      
-      <AdminSidebar /> {/* USE COMPONENT */}
-
+      <AdminSidebar />
       <div className="ml-64 flex-1 p-8 flex justify-center items-start">
         <div className="w-full max-w-xl bg-galatic-slate/20 p-8 rounded-2xl border border-galatic-slate/50 mt-8">
+          
+          <button onClick={() => navigate('/customers')} className="flex items-center gap-2 text-galatic-sky hover:text-white mb-6 transition-colors">
+            <ArrowLeft className="w-5 h-5" /> Back to Customers
+          </button>
+
           <h1 className="text-3xl font-bold mb-6 text-galatic-cream">Edit Customer</h1>
           
           <form onSubmit={handleSave} className="space-y-5">
@@ -89,7 +92,7 @@ export default function AdminEditCustomer() {
             </div>
 
             <div className="flex gap-4 pt-4">
-              <button type="button" onClick={() => navigate('/admin/customers')} className="flex-1 bg-galatic-slate/40 text-white font-bold py-3 rounded-xl hover:bg-galatic-slate transition-all">Cancel</button>
+              <button type="button" onClick={() => navigate('/customers')} className="flex-1 bg-galatic-slate/40 text-white font-bold py-3 rounded-xl hover:bg-galatic-slate transition-all">Cancel</button>
               <button type="submit" className="flex-1 bg-galatic-cream text-galatic-navy font-bold py-3 rounded-xl hover:bg-white transition-all flex justify-center items-center gap-2"><Save className="w-5 h-5" /> Save Changes</button>
             </div>
           </form>

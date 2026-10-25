@@ -26,7 +26,6 @@ export default function Categories() {
   return (
     <div className="flex min-h-screen bg-galatic-navy text-galatic-sky">
       <Sidebar />
-      
       <main className="ml-64 flex-1 p-8">
         <h1 className="text-3xl font-bold text-galatic-cream mb-8 flex items-center gap-3">
           <Gamepad2 className="w-8 h-8" /> Browse Categories
@@ -45,7 +44,7 @@ export default function Categories() {
             {categories.map((cat, index) => (
               <button
                 key={index}
-                onClick={() => navigate(`/store/games?category=${cat}`)}
+                onClick={() => navigate(`/games?category=${cat}`)} // FIXED
                 className="bg-galatic-slate/10 border border-galatic-slate/30 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 hover:bg-galatic-slate/30 hover:border-galatic-sky/50 transition-all duration-300 transform hover:-translate-y-1 group"
               >
                 <div className="p-4 bg-galatic-navy/50 rounded-full group-hover:bg-galatic-slate transition-colors">

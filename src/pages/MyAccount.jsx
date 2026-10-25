@@ -22,7 +22,6 @@ export default function MyAccount() {
         return;
       }
 
-      // 1. Fetch User Profile Data
       try {
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
@@ -48,13 +47,11 @@ export default function MyAccount() {
         toast.error("Failed to load profile data.");
       }
 
-      // 2. Fetch Top-Up History (Real-time)
       const topupsRef = collection(db, "topup_requests");
       const q = query(topupsRef, where("userId", "==", user.uid));
       
       unsubscribeTopups = onSnapshot(q, (snapshot) => {
         const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        // Sort newest first
         history.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
         setTopups(history);
         setLoading(false);
@@ -111,7 +108,6 @@ export default function MyAccount() {
 
         <div className="flex flex-col gap-6 max-w-4xl">
           
-          {/* WALLET CARD */}
           <div className="bg-galatic-slate/20 border border-galatic-slate/50 rounded-2xl p-6 flex justify-between items-center">
             <div>
               <p className="text-galatic-sky/70 text-sm mb-1 flex items-center gap-2">
@@ -120,7 +116,7 @@ export default function MyAccount() {
               <h2 className="text-3xl font-bold text-green-400">৳{cleanBalance}</h2>
             </div>
             <button 
-              onClick={() => navigate('/store/topup')}
+              onClick={() => navigate('/topup')} // FIXED
               className="bg-galatic-cream text-galatic-navy px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-white transition-all shadow-[0_0_15px_rgba(255,235,194,0.3)]"
             >
               <PlusCircle className="w-5 h-5" /> Top Up
@@ -129,7 +125,6 @@ export default function MyAccount() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            {/* PROFILE CARD */}
             <div className="bg-galatic-slate/20 border border-galatic-slate/50 rounded-2xl p-8">
               <div className="flex items-center gap-6 mb-8 border-b border-galatic-slate/30 pb-8">
                 <div className="w-20 h-20 bg-galatic-cream rounded-full flex items-center justify-center text-galatic-navy text-3xl font-bold">
@@ -185,7 +180,6 @@ export default function MyAccount() {
               </div>
             </div>
 
-            {/* TOP-UP HISTORY CARD */}
             <div className="bg-galatic-slate/20 border border-galatic-slate/50 rounded-2xl p-8 h-fit">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-galatic-slate/30 pb-4">
                 <History className="w-5 h-5 text-galatic-cream" /> Top-Up History
