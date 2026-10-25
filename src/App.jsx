@@ -8,7 +8,7 @@ import Cart from './pages/Cart';
 import MyOrders from './pages/MyOrders';
 import MyAccount from './pages/MyAccount';
 import TopUp from './pages/TopUp';
-import TopUpPayment from './pages/TopUpPayment'; // NEW IMPORT
+import TopUpPayment from './pages/TopUpPayment';
 import OrderDetails from './pages/OrderDetails';
 import OrderCheckout from './pages/OrderCheckout';
 import PaymentCheckout from './pages/PaymentCheckout';
@@ -21,42 +21,55 @@ import AdminCategories from './pages/AdminCategories';
 import AdminOrders from './pages/AdminOrders';
 import AdminOrderDetails from './pages/AdminOrderDetails';
 import AdminCarts from './pages/AdminCarts';
-import AdminTopUps from './pages/AdminTopUps'; // NEW IMPORT
+import AdminTopUps from './pages/AdminTopUps';
 
 export default function App() {
+  // This checks if the user is on the admin subdomain
+  const isAdminSubdomain = window.location.hostname.startsWith('admin');
+
   return (
     <BrowserRouter>
       <Toaster position="top-center" toastOptions={{ style: { background: '#021a2b', color: '#ffebc2', border: '1px solid #416f9f' } }} />
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
         
-        {/* Admin Routes */}
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/add-game" element={<AdminAddGame />} />
-        <Route path="/admin/edit-game/:id" element={<AdminEditGame />} />
-        <Route path="/admin/categories" element={<AdminCategories />} />
-        <Route path="/admin/customers" element={<AdminCustomers />} />
-        <Route path="/admin/customers/edit/:id" element={<AdminEditCustomer />} />
-        <Route path="/admin/orders" element={<AdminOrders />} />
-        <Route path="/admin/orders/:orderId" element={<AdminOrderDetails />} />
-        <Route path="/admin/carts" element={<AdminCarts />} />
-        <Route path="/admin/topups" element={<AdminTopUps />} /> {/* NEW ROUTE */}
-        
-        {/* Store Pages */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/store" element={<Home />} />
-        <Route path="/store/games" element={<Store />} />
-        <Route path="/store/categories" element={<Categories />} />
-        <Route path="/store/cart" element={<Cart />} />
-        <Route path="/store/orders" element={<MyOrders />} />
-        <Route path="/store/account" element={<MyAccount />} />
-        <Route path="/store/topup" element={<TopUp />} />
-        <Route path="/store/topup/:requestId" element={<TopUpPayment />} /> {/* NEW ROUTE */}
-        <Route path="/store/orders/:orderId" element={<OrderDetails />} />
-        <Route path="/store/checkout/:orderId" element={<OrderCheckout />} />
-        <Route path="/store/pay/:orderId" element={<PaymentCheckout />} />
-        
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* ============================================== */}
+        {/* ADMIN ROUTES (admin.galatic.indevs.in)         */}
+        {/* ============================================== */}
+        {isAdminSubdomain ? (
+          <>
+            <Route path="/" element={<Admin />} />
+            <Route path="/add-game" element={<AdminAddGame />} />
+            <Route path="/edit-game/:id" element={<AdminEditGame />} />
+            <Route path="/categories" element={<AdminCategories />} />
+            <Route path="/customers" element={<AdminCustomers />} />
+            <Route path="/customers/edit/:id" element={<AdminEditCustomer />} />
+            <Route path="/orders" element={<AdminOrders />} />
+            <Route path="/orders/:orderId" element={<AdminOrderDetails />} />
+            <Route path="/carts" element={<AdminCarts />} />
+            <Route path="/topups" element={<AdminTopUps />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        ) : (
+          
+          /* ============================================== */
+          /* STORE ROUTES (store.galatic.indevs.in)         */
+          /* ============================================== */
+          <>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/games" element={<Store />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/orders" element={<MyOrders />} />
+            <Route path="/account" element={<MyAccount />} />
+            <Route path="/topup" element={<TopUp />} />
+            <Route path="/topup/:requestId" element={<TopUpPayment />} />
+            <Route path="/orders/:orderId" element={<OrderDetails />} />
+            <Route path="/checkout/:orderId" element={<OrderCheckout />} />
+            <Route path="/pay/:orderId" element={<PaymentCheckout />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        )}
       </Routes>
     </BrowserRouter>
   );

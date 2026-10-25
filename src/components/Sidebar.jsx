@@ -34,16 +34,15 @@ export default function Sidebar() {
   };
 
   const navItems = [
-    { name: 'Home', icon: Home, path: '/store', exact: true },
-    { name: 'Store', icon: Store, path: '/store/games', exact: true },
-    { name: 'Categories', icon: Gamepad2, path: '/store/categories', exact: true }, 
-    { name: 'Cart', icon: ShoppingCart, path: '/store/cart', badge: cartCount, exact: true },
-    { name: 'My Orders', icon: Package, path: '/store/orders', exact: true },
-    { name: 'My Account', icon: User, path: '/store/account', exact: true }, 
+    { name: 'Home', icon: Home, path: '/', exact: true },
+    { name: 'Store', icon: Store, path: '/games', exact: true },
+    { name: 'Categories', icon: Gamepad2, path: '/categories', exact: true }, 
+    { name: 'Cart', icon: ShoppingCart, path: '/cart', badge: cartCount, exact: true },
+    { name: 'My Orders', icon: Package, path: '/orders', exact: true },
+    { name: 'My Account', icon: User, path: '/account', exact: true }, 
   ];
 
   return (
-    /* Slightly darker sidebar background to create depth */
     <div className="w-64 bg-[#084b57] border-r border-white/10 h-screen flex flex-col fixed left-0 top-0 z-50">
       <div className="p-6 flex items-center gap-3">
         <img src={logo} alt="Galatic Logo" className="w-12 h-12 object-contain rounded-full bg-white/10 p-1" />

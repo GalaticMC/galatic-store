@@ -25,25 +25,25 @@ export default function AdminSidebar() {
       </div>
       
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        <NavLink to="/admin" end className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
+        <NavLink to="/" end className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
           <LayoutDashboard className="w-5 h-5" /> Dashboard
         </NavLink>
-        <NavLink to="/admin/add-game" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
+        <NavLink to="/add-game" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
           <PlusCircle className="w-5 h-5" /> Add Products
         </NavLink>
-        <NavLink to="/admin/categories" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
+        <NavLink to="/categories" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
           <Gamepad2 className="w-5 h-5" /> Categories
         </NavLink>
-        <NavLink to="/admin/customers" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
+        <NavLink to="/customers" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
           <Users className="w-5 h-5" /> Customer Info
         </NavLink>
-        <NavLink to="/admin/orders" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
+        <NavLink to="/orders" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
           <ShoppingCart className="w-5 h-5" /> Orders
         </NavLink>
-        <NavLink to="/admin/carts" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
+        <NavLink to="/carts" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
           <ShoppingCart className="w-5 h-5" /> Active Carts
         </NavLink>
-        <NavLink to="/admin/topups" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
+        <NavLink to="/topups" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${isActive ? 'bg-galatic-slate text-white' : 'text-galatic-sky hover:bg-white/10 hover:text-white'}`}>
           <Wallet className="w-5 h-5" /> Top-Ups
         </NavLink>
         <button className="flex items-center gap-3 px-4 py-3 w-full hover:bg-white/10 rounded-xl text-galatic-sky hover:text-white transition-colors text-left">
@@ -52,9 +52,9 @@ export default function AdminSidebar() {
       </nav>
 
       <div className="p-4 border-t border-white/10 space-y-2">
-        <NavLink to="/store" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-galatic-sky hover:text-white transition-colors">
+        <a href="https://store.galatic.indevs.in" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-xl text-galatic-sky hover:text-white transition-colors">
           <ArrowLeft className="w-5 h-5" /> Back to Store
-        </NavLink>
+        </a>
         <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-red-300 hover:bg-red-400/20 transition-colors font-bold">
           <LogOut className="w-5 h-5" /> Log Out
         </button>
