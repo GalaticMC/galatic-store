@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { db, auth } from '../firebase';
+import { db } from '../firebase';
 import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import AdminSidebar from '../components/AdminSidebar'; // IMPORT COMPONENT
-import { PlusCircle, Plus } from 'lucide-react';
+import AdminSidebar from '../components/AdminSidebar';
+import { PlusCircle, Plus, Upload, Loader } from 'lucide-react';
+
+// ⚠️ REPLACE THESE WITH YOUR CLOUDINARY DETAILS
+const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";
+const CLOUDINARY_UPLOAD_PRESET = "YOUR_UNSIGNED_PRESET";
 
 export default function AdminAddGame() {
   const [title, setTitle] = useState('');
@@ -12,6 +16,8 @@ export default function AdminAddGame() {
   const [oldPrice, setOldPrice] = useState('');
   const [discount, setDiscount] = useState(''); 
   const [image, setImage] = useState('');
+  const [bannerImage, setBannerImage] = useState('');
+  const [trailerLink, setTrailerLink] = useState('');
   const [stock, setStock] = useState(0); 
   
   const [categories, setCategories] = useState([]);
@@ -23,7 +29,9 @@ export default function AdminAddGame() {
   const [isBigDiscount, setIsBigDiscount] = useState(false);
   const [isRecommended, setIsRecommended] = useState(false);
   const [isMostSelling, setIsMostSelling] = useState(false);
+  
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,6 +62,37 @@ export default function AdminAddGame() {
     }
   }, [price, oldPrice]);
 
+  const handleImageUpload = async (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: "POST", body: formData }
+      );
+      const data = await res.json();
+      
+      if (data.secure_url) {
+        if (type === 'thumbnail') setImage(data.secure_url);
+        if (type === 'banner') setBannerImage(data.secure_url);
+        toast.success("Image uploaded successfully!");
+      } else {
+        toast.error("Upload failed. Check your Cloudinary preset.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to upload image.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleAddCategory = async () => {
     if (!newCategory.trim()) return;
     try {
@@ -64,7 +103,6 @@ export default function AdminAddGame() {
       setShowNewCatInput(false);
       toast.success("Category added!");
     } catch (error) {
-      console.error("Error adding category: ", error);
       toast.error("Failed to add category.");
     }
   };
@@ -85,6 +123,8 @@ export default function AdminAddGame() {
         discount: discount || null,
         image,
         stock: Number(stock),
+        bannerImage: isFeatured ? bannerImage : null,
+        trailerLink: isFeatured ? trailerLink : null,
         category,
         isFeatured,
         isBigDiscount,
@@ -93,7 +133,7 @@ export default function AdminAddGame() {
         createdAt: new Date()
       });
       toast.success("Game added successfully!");
-      navigate('/admin');
+      navigate('/');
     } catch (error) {
       console.error("Error adding game: ", error);
       toast.error("Error adding game.");
@@ -103,8 +143,7 @@ export default function AdminAddGame() {
 
   return (
     <div className="flex min-h-screen bg-galatic-navy text-white">
-      
-      <AdminSidebar /> {/* USE COMPONENT */}
+      <AdminSidebar />
 
       <div className="ml-64 flex-1 p-8 flex justify-center items-start">
         <div className="w-full max-w-3xl bg-galatic-slate/20 p-8 rounded-2xl border border-galatic-slate/50 mt-8">
@@ -162,9 +201,22 @@ export default function AdminAddGame() {
                 <label className="block text-sm mb-1 text-galatic-sky">Stock Quantity</label>
                 <input required type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} className="w-full bg-galatic-navy border border-galatic-slate rounded-lg p-3 text-white focus:outline-none focus:border-galatic-sky" placeholder="0" />
               </div>
+              
+              {/* THUMBNAIL UPLOAD */}
               <div className="flex-1">
-                <label className="block text-sm mb-1 text-galatic-sky">Image URL</label>
-                <input required type="url" value={image} onChange={(e) => setImage(e.target.value)} className="w-full bg-galatic-navy border border-galatic-slate rounded-lg p-3 text-white focus:outline-none focus:border-galatic-sky" placeholder="https://..." />
+                <label className="block text-sm mb-1 text-galatic-sky">Product Image (Thumbnail)</label>
+                <div className="flex gap-2 items-center">
+                  {image && (
+                    <img src={image} alt="Preview" className="w-12 h-12 rounded object-cover border border-galatic-slate" />
+                  )}
+                  <label className="flex-1 cursor-pointer bg-galatic-navy border border-galatic-slate border-dashed rounded-lg p-3 text-center hover:border-galatic-sky transition-colors">
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'thumbnail')} className="hidden" />
+                    <div className="flex items-center justify-center gap-2 text-galatic-sky text-sm">
+                      {uploading ? <Loader className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      {uploading ? 'Uploading...' : 'Upload Image'}
+                    </div>
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -174,6 +226,31 @@ export default function AdminAddGame() {
                 <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="w-5 h-5 accent-galatic-cream" />
                 <span>Featured (Main Banner)</span>
               </label>
+
+              {isFeatured && (
+                <div className="pl-8 pt-2 space-y-4 border-l-2 border-galatic-slate/50 ml-2">
+                  <div>
+                    <label className="block text-sm mb-1 text-galatic-sky">Banner Image (Wide Image)</label>
+                    <div className="flex gap-4 items-center">
+                      {bannerImage && (
+                        <img src={bannerImage} alt="Banner Preview" className="w-24 h-12 rounded object-cover border border-galatic-slate" />
+                      )}
+                      <label className="flex-1 cursor-pointer bg-galatic-navy border border-galatic-slate border-dashed rounded-lg p-2 text-center hover:border-galatic-sky transition-colors">
+                        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'banner')} className="hidden" />
+                        <div className="flex items-center justify-center gap-2 text-galatic-sky text-sm">
+                          {uploading ? <Loader className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          {uploading ? 'Uploading...' : 'Upload Banner'}
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm mb-1 text-galatic-sky">Watch Trailer Link (YouTube URL)</label>
+                    <input type="url" value={trailerLink} onChange={(e) => setTrailerLink(e.target.value)} className="w-full bg-galatic-navy border border-galatic-slate rounded-lg p-3 text-white focus:outline-none focus:border-galatic-sky" placeholder="https://youtube.com/watch?v=..." />
+                  </div>
+                </div>
+              )}
+
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={isBigDiscount} onChange={(e) => setIsBigDiscount(e.target.checked)} className="w-5 h-5 accent-galatic-cream" />
                 <span>Show in "Big Discounts" Section</span>
@@ -188,7 +265,7 @@ export default function AdminAddGame() {
               </label>
             </div>
 
-            <button disabled={loading} type="submit" className="w-full bg-galatic-cream text-galatic-navy font-bold py-4 rounded-xl hover:bg-white transition-all mt-6 shadow-[0_0_15px_rgba(255,235,194,0.3)]">
+            <button disabled={loading || uploading} type="submit" className="w-full bg-galatic-cream text-galatic-navy font-bold py-4 rounded-xl hover:bg-white transition-all mt-6 shadow-[0_0_15px_rgba(255,235,194,0.3)]">
               {loading ? "Saving to Database..." : "Publish Game to Store"}
             </button>
           </form>

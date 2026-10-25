@@ -3,8 +3,12 @@ import { db } from '../firebase';
 import { doc, getDoc, updateDoc, collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import AdminSidebar from '../components/AdminSidebar'; // IMPORT COMPONENT
-import { Save } from 'lucide-react';
+import AdminSidebar from '../components/AdminSidebar';
+import { ArrowLeft, Save, Upload, Loader } from 'lucide-react';
+
+// ⚠️ REPLACE THESE WITH YOUR CLOUDINARY DETAILS
+const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";
+const CLOUDINARY_UPLOAD_PRESET = "YOUR_UNSIGNED_PRESET";
 
 export default function AdminEditGame() {
   const { id } = useParams();
@@ -25,7 +29,9 @@ export default function AdminEditGame() {
   const [isBigDiscount, setIsBigDiscount] = useState(false);
   const [isRecommended, setIsRecommended] = useState(false);
   const [isMostSelling, setIsMostSelling] = useState(false);
+  
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +61,7 @@ export default function AdminEditGame() {
           setIsMostSelling(data.isMostSelling || false);
         } else {
           toast.error("Game not found!");
-          navigate('/admin');
+          navigate('/');
         }
       } catch (error) {
         console.error("Error fetching data: ", error);
@@ -77,6 +83,38 @@ export default function AdminEditGame() {
       setDiscount(''); 
     }
   }, [price, oldPrice]);
+
+  // CLOUDINARY IMAGE UPLOAD FUNCTION
+  const handleImageUpload = async (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: "POST", body: formData }
+      );
+      const data = await res.json();
+      
+      if (data.secure_url) {
+        if (type === 'thumbnail') setImage(data.secure_url);
+        if (type === 'banner') setBannerImage(data.secure_url);
+        toast.success("Image uploaded successfully!");
+      } else {
+        toast.error("Upload failed. Check your Cloudinary preset.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to upload image.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -113,7 +151,7 @@ export default function AdminEditGame() {
       });
       
       toast.success("Game updated successfully!");
-      navigate('/admin');
+      navigate('/');
     } catch (error) {
       console.error("Error updating game: ", error);
       toast.error("Error updating game.");
@@ -125,11 +163,15 @@ export default function AdminEditGame() {
 
   return (
     <div className="flex min-h-screen bg-galatic-navy text-white">
-      
-      <AdminSidebar /> {/* USE COMPONENT */}
+      <AdminSidebar />
 
       <div className="ml-64 flex-1 p-8 flex justify-center items-start">
         <div className="w-full max-w-3xl bg-galatic-slate/20 p-8 rounded-2xl border border-galatic-slate/50 mt-8">
+          
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-galatic-sky hover:text-white mb-6 transition-colors">
+            <ArrowLeft className="w-5 h-5" /> Back to Dashboard
+          </button>
+
           <div className="flex items-center gap-3 mb-6">
             <Save className="w-8 h-8 text-galatic-cream" />
             <h1 className="text-3xl font-bold text-galatic-cream">Edit Game</h1>
@@ -170,9 +212,21 @@ export default function AdminEditGame() {
               </div>
             </div>
 
+            {/* THUMBNAIL UPLOAD */}
             <div>
-              <label className="block text-sm mb-1 text-galatic-sky">Product Image URL (Thumbnail)</label>
-              <input required type="url" value={image} onChange={(e) => setImage(e.target.value)} className="w-full bg-galatic-navy border border-galatic-slate rounded-lg p-3 text-white focus:outline-none focus:border-galatic-sky" />
+              <label className="block text-sm mb-1 text-galatic-sky">Product Image (Thumbnail)</label>
+              <div className="flex gap-4 items-center">
+                {image && (
+                  <img src={image} alt="Preview" className="w-16 h-16 rounded object-cover border border-galatic-slate" />
+                )}
+                <label className="flex-1 cursor-pointer bg-galatic-navy border border-galatic-slate border-dashed rounded-lg p-3 text-center hover:border-galatic-sky transition-colors">
+                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'thumbnail')} className="hidden" />
+                  <div className="flex items-center justify-center gap-2 text-galatic-sky">
+                    {uploading ? <Loader className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+                    {uploading ? 'Uploading to Cloudinary...' : 'Upload from Device'}
+                  </div>
+                </label>
+              </div>
             </div>
 
             <div className="bg-galatic-navy/50 p-4 rounded-lg border border-galatic-slate/50 space-y-3">
@@ -185,10 +239,23 @@ export default function AdminEditGame() {
               
               {isFeatured && (
                 <div className="pl-8 pt-2 space-y-4 border-l-2 border-galatic-slate/50 ml-2">
+                  {/* BANNER UPLOAD */}
                   <div>
-                    <label className="block text-sm mb-1 text-galatic-sky">Banner Image URL (Wide Image)</label>
-                    <input type="url" value={bannerImage} onChange={(e) => setBannerImage(e.target.value)} className="w-full bg-galatic-navy border border-galatic-slate rounded-lg p-3 text-white focus:outline-none focus:border-galatic-sky" placeholder="https://..." />
+                    <label className="block text-sm mb-1 text-galatic-sky">Banner Image (Wide Image)</label>
+                    <div className="flex gap-4 items-center">
+                      {bannerImage && (
+                        <img src={bannerImage} alt="Banner Preview" className="w-24 h-12 rounded object-cover border border-galatic-slate" />
+                      )}
+                      <label className="flex-1 cursor-pointer bg-galatic-navy border border-galatic-slate border-dashed rounded-lg p-2 text-center hover:border-galatic-sky transition-colors">
+                        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'banner')} className="hidden" />
+                        <div className="flex items-center justify-center gap-2 text-galatic-sky text-sm">
+                          {uploading ? <Loader className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          {uploading ? 'Uploading...' : 'Upload Banner'}
+                        </div>
+                      </label>
+                    </div>
                   </div>
+
                   <div>
                     <label className="block text-sm mb-1 text-galatic-sky">Watch Trailer Link (YouTube URL)</label>
                     <input type="url" value={trailerLink} onChange={(e) => setTrailerLink(e.target.value)} className="w-full bg-galatic-navy border border-galatic-slate rounded-lg p-3 text-white focus:outline-none focus:border-galatic-sky" placeholder="https://youtube.com/watch?v=..." />
@@ -200,7 +267,6 @@ export default function AdminEditGame() {
                 <input type="checkbox" checked={isBigDiscount} onChange={(e) => setIsBigDiscount(e.target.checked)} className="w-5 h-5 accent-galatic-cream" />
                 <span>Show in "Big Discounts" Section</span>
               </label>
-
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={isRecommended} onChange={(e) => setIsRecommended(e.target.checked)} className="w-5 h-5 accent-galatic-cream" />
                 <span>Recommended Section</span>
@@ -212,8 +278,8 @@ export default function AdminEditGame() {
             </div>
 
             <div className="flex gap-4 pt-4">
-              <button type="button" onClick={() => navigate('/admin')} className="flex-1 bg-galatic-slate/40 text-white font-bold py-4 rounded-xl hover:bg-galatic-slate transition-all">Cancel</button>
-              <button disabled={loading} type="submit" className="flex-1 bg-galatic-cream text-galatic-navy font-bold py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(255,235,194,0.3)]">
+              <button type="button" onClick={() => navigate('/')} className="flex-1 bg-galatic-slate/40 text-white font-bold py-4 rounded-xl hover:bg-galatic-slate transition-all">Cancel</button>
+              <button disabled={loading || uploading} type="submit" className="flex-1 bg-galatic-cream text-galatic-navy font-bold py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(255,235,194,0.3)]">
                 {loading ? "Updating..." : "Save Changes"}
               </button>
             </div>
