@@ -18,7 +18,6 @@ export default function OrderCheckout() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1. Fetch User Profile for Balance
         const userRef = doc(db, "users", auth.currentUser.uid);
         const userSnap = await getDoc(userRef);
         
@@ -28,7 +27,6 @@ export default function OrderCheckout() {
           setUserBalance(cleanBalance || 0);
         }
 
-        // 2. Fetch Order Details
         const orderRef = doc(db, "orders", orderId);
         const orderSnap = await getDoc(orderRef);
         
@@ -36,22 +34,18 @@ export default function OrderCheckout() {
           const orderData = orderSnap.data();
           if (orderData.userId !== auth.currentUser.uid) {
             toast.error("Unauthorized access.");
-            navigate('/store/orders');
+            navigate('/orders'); // FIXED
             return;
           }
           if (orderData.status === 'Paid') {
-            toast.success("This order is already paid.");
-            navigate(`/store/orders/${orderId}`);
+            navigate(`/orders/${orderId}`); // FIXED
             return;
           }
           setOrder({ id: orderSnap.id, ...orderData });
         } else {
-          toast.error("Order not found!");
-          navigate('/store/orders');
+          navigate('/orders'); // FIXED
         }
-
       } catch (error) {
-        console.error("Error fetching data: ", error);
         toast.error("Failed to load checkout details.");
       } finally {
         setLoading(false);
@@ -63,7 +57,6 @@ export default function OrderCheckout() {
 
   const handlePayment = async () => {
     if (!order) return;
-    
     const orderCost = parseFloat(order.totalAmount);
     
     if (userBalance < orderCost) {
@@ -75,39 +68,22 @@ export default function OrderCheckout() {
     const loadingToast = toast.loading("Processing payment...");
 
     try {
-      // 1. Deduct balance from user
       const newBalance = userBalance - orderCost;
-      const userRef = doc(db, "users", auth.currentUser.uid);
-      await updateDoc(userRef, {
+      await updateDoc(doc(db, "users", auth.currentUser.uid), {
         totalSpent: `৳${newBalance.toLocaleString()}`
       });
 
-      // 2. Update Order Status to Paid
-      const orderRef = doc(db, "orders", orderId);
-      await updateDoc(orderRef, { status: 'Paid' });
+      await updateDoc(doc(db, "orders", orderId), { status: 'Paid' });
 
-      // 3. Success
       toast.success(`Payment of ৳${orderCost} successful!`, { id: loadingToast });
-      
-      // 4. Redirect back to order details after a short delay
-      setTimeout(() => {
-        navigate(`/store/orders/${orderId}`);
-      }, 1000);
-
+      setTimeout(() => navigate(`/orders/${orderId}`), 1000); // FIXED
     } catch (error) {
-      console.error("Payment error: ", error);
       toast.error("Payment failed. Please try again.", { id: loadingToast });
       setProcessing(false);
     }
   };
 
-  if (loading) return (
-    <div className="flex min-h-screen bg-galatic-navy text-white">
-      <Sidebar />
-      <div className="ml-64 flex-1 flex items-center justify-center">Loading checkout...</div>
-    </div>
-  );
-
+  if (loading) return <div className="min-h-screen bg-galatic-navy text-white flex items-center justify-center">Loading checkout...</div>;
   if (!order) return null;
 
   const orderCost = parseFloat(order.totalAmount);
@@ -121,7 +97,7 @@ export default function OrderCheckout() {
         <div className="w-full max-w-xl mt-8">
           
           <button 
-            onClick={() => navigate(`/store/orders/${orderId}`)} 
+            onClick={() => navigate(`/orders/${orderId}`)} // FIXED
             className="flex items-center gap-2 text-galatic-sky hover:text-white mb-6 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" /> Cancel and go back
@@ -133,13 +109,9 @@ export default function OrderCheckout() {
             </h1>
 
             <div className="space-y-6">
-              
-              {/* Wallet Balance */}
               <div className="bg-galatic-navy/50 p-6 rounded-xl border border-galatic-slate/30 flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-galatic-slate/30 rounded-lg">
-                    <Wallet className="w-6 h-6 text-galatic-cream" />
-                  </div>
+                  <div className="p-3 bg-galatic-slate/30 rounded-lg"><Wallet className="w-6 h-6 text-galatic-cream" /></div>
                   <div>
                     <p className="text-galatic-sky/70 text-sm">Account Balance</p>
                     <p className="text-2xl font-bold text-white">৳{userBalance.toLocaleString()}</p>
@@ -147,12 +119,9 @@ export default function OrderCheckout() {
                 </div>
               </div>
 
-              {/* Order Cost */}
               <div className="bg-galatic-navy/50 p-6 rounded-xl border border-galatic-slate/30 flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-red-500/20 rounded-lg">
-                    <ShoppingCart className="w-6 h-6 text-red-400" />
-                  </div>
+                  <div className="p-3 bg-red-500/20 rounded-lg"><ShoppingCart className="w-6 h-6 text-red-400" /></div>
                   <div>
                     <p className="text-galatic-sky/70 text-sm">Buy Cost</p>
                     <p className="text-2xl font-bold text-red-400">৳{orderCost.toLocaleString()}</p>
@@ -160,12 +129,9 @@ export default function OrderCheckout() {
                 </div>
               </div>
 
-              {/* Resulting Balance Preview */}
               <div className="bg-galatic-navy/50 p-6 rounded-xl border border-galatic-slate/30 flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-green-500/20 rounded-lg">
-                    <CheckCircle className="w-6 h-6 text-green-400" />
-                  </div>
+                  <div className="p-3 bg-green-500/20 rounded-lg"><CheckCircle className="w-6 h-6 text-green-400" /></div>
                   <div>
                     <p className="text-galatic-sky/70 text-sm">New Balance After Purchase</p>
                     <p className={`text-2xl font-bold ${isBalanceSufficient ? 'text-green-400' : 'text-red-400'}`}>
@@ -174,7 +140,6 @@ export default function OrderCheckout() {
                   </div>
                 </div>
               </div>
-
             </div>
 
             <button 
@@ -191,11 +156,10 @@ export default function OrderCheckout() {
 
             {!isBalanceSufficient && (
               <p className="text-center text-red-400 text-sm mt-4">
-                You need ৳{(orderCost - userBalance).toLocaleString()} more to complete this purchase. 
-                <button onClick={() => navigate('/store/topup')} className="text-galatic-cream hover:underline ml-1">Top Up Now</button>
+                You need ৳{(orderCost - userBalance).toLocaleString()} more. 
+                <button onClick={() => navigate('/topup')} className="text-galatic-cream hover:underline ml-1">Top Up Now</button> {/* FIXED */}
               </p>
             )}
-
           </div>
         </div>
       </div>

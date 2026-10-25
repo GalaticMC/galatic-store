@@ -23,7 +23,6 @@ export default function MyOrders() {
       const ordersRef = collection(db, "orders");
       const q = query(ordersRef, where("userId", "==", user.uid));
       
-      // onSnapshot allows real-time updates
       unsubscribeOrders = onSnapshot(q, (querySnapshot) => {
         const userOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         userOrders.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
@@ -43,8 +42,6 @@ export default function MyOrders() {
       case 'Completed':
       case 'Paid':
         return 'bg-green-400/20 text-green-400';
-      case 'Pending':
-        return 'bg-yellow-400/20 text-yellow-400';
       case 'Unpaid':
         return 'bg-orange-400/20 text-orange-400';
       case 'Cancelled':
@@ -78,7 +75,7 @@ export default function MyOrders() {
           <div className="text-center py-20 bg-galatic-slate/10 rounded-2xl border border-galatic-slate/20">
             <Package className="w-16 h-16 text-galatic-slate mx-auto mb-4" />
             <p className="text-galatic-sky text-xl mb-4">You haven't placed any orders yet.</p>
-            <Link to="/store" className="text-galatic-cream hover:underline">Start Shopping &rarr;</Link>
+            <Link to="/" className="text-galatic-cream hover:underline">Start Shopping &rarr;</Link>
           </div>
         ) : (
           <div className="space-y-4 max-w-4xl">
@@ -90,7 +87,7 @@ export default function MyOrders() {
               return (
                 <div 
                   key={order.id} 
-                  onClick={() => navigate(`/store/orders/${order.id}`)}
+                  onClick={() => navigate(`/orders/${order.id}`)} // FIXED LINK
                   className="bg-galatic-slate/20 border border-galatic-slate/50 rounded-2xl p-6 cursor-pointer hover:bg-galatic-slate/30 hover:border-galatic-sky/50 transition-all duration-200 group"
                 >
                   <div className="flex justify-between items-start mb-4 border-b border-galatic-slate/30 pb-4">
@@ -116,7 +113,7 @@ export default function MyOrders() {
                           <p className="text-white font-bold text-sm">{item.title}</p>
                           <p className="text-galatic-sky/70 text-xs">{item.category}</p>
                         </div>
-                        <span className="text-galatic-cream font-bold">{item.price}</span>
+                        <span className="text-galatic-cream font-bold">৳{item.price}</span>
                       </div>
                     ))}
                   </div>

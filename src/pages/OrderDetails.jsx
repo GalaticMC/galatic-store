@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import toast from 'react-hot-toast';
 import Sidebar from '../components/Sidebar';
-import { ArrowLeft, ShoppingCart, Calendar, DollarSign, Package, CreditCard, RefreshCw, Mail, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Calendar, DollarSign, Package, CreditCard, RefreshCw, Mail } from 'lucide-react';
 
 export default function OrderDetails() {
   const { orderId } = useParams();
@@ -23,17 +23,16 @@ export default function OrderDetails() {
           const data = docSnap.data();
           if (data.userId !== auth.currentUser.uid) {
             toast.error("You do not have permission to view this order.");
-            navigate('/store/orders');
+            navigate('/orders'); // FIXED
             return;
           }
           setOrder({ id: docSnap.id, ...data });
         } else {
           toast.error("Order not found!");
-          navigate('/store/orders');
+          navigate('/orders'); // FIXED
         }
       } catch (error) {
         console.error("Error fetching order: ", error);
-        toast.error("Failed to load order details.");
       }
       setLoading(false);
     };
@@ -54,9 +53,8 @@ export default function OrderDetails() {
         });
       }
       toast.success("Items added back to your cart!");
-      navigate('/store/cart');
+      navigate('/cart'); // FIXED
     } catch (error) {
-      console.error("Error adding to cart: ", error);
       toast.error("Failed to add items back to cart.");
     }
     setProcessing(false);
@@ -67,8 +65,6 @@ export default function OrderDetails() {
       case 'Completed':
       case 'Paid':
         return 'bg-green-400/20 text-green-400';
-      case 'Pending':
-        return 'bg-yellow-400/20 text-yellow-400';
       case 'Unpaid':
         return 'bg-orange-400/20 text-orange-400';
       case 'Cancelled':
@@ -87,9 +83,7 @@ export default function OrderDetails() {
 
   if (!order) return null;
 
-  const orderDate = order.createdAt?.toDate 
-    ? order.createdAt.toDate().toLocaleString() 
-    : 'N/A';
+  const orderDate = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString() : 'N/A';
 
   return (
     <div className="flex min-h-screen bg-galatic-navy text-white">
@@ -97,7 +91,7 @@ export default function OrderDetails() {
 
       <div className="ml-64 flex-1 p-8">
         <button 
-          onClick={() => navigate('/store/orders')} 
+          onClick={() => navigate('/orders')} // FIXED
           className="flex items-center gap-2 text-galatic-sky hover:text-white mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" /> Back to My Orders
@@ -119,7 +113,7 @@ export default function OrderDetails() {
               
               {order.status === 'Unpaid' && (
                 <button 
-                  onClick={() => navigate(`/store/checkout/${order.id}`)}
+                  onClick={() => navigate(`/checkout/${order.id}`)} // FIXED
                   className="bg-green-500 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-green-400 transition-colors shadow-lg"
                 >
                   <CreditCard className="w-5 h-5" /> Pay Now
@@ -138,7 +132,6 @@ export default function OrderDetails() {
             </div>
           </div>
 
-          {/* NEW: EMAIL DELIVERY NOTICE (ONLY IF PAID) */}
           {order.status === 'Paid' && (
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-6 mb-8 flex items-start gap-4">
               <div className="p-3 bg-green-500/20 rounded-full text-green-400">
@@ -148,7 +141,6 @@ export default function OrderDetails() {
                 <h3 className="text-lg font-bold text-green-400 mb-1">Payment Successful!</h3>
                 <p className="text-galatic-sky/90 text-sm leading-relaxed">
                   Your account credentials and game keys will be sent to your email address (<span className="font-bold text-white">{auth.currentUser?.email}</span>) within the next <span className="font-bold text-white">1 hour</span>. 
-                  Please check your spam folder if you don't see it.
                 </p>
               </div>
             </div>
@@ -176,7 +168,7 @@ export default function OrderDetails() {
                   <p className="text-white font-bold text-lg">{item.title}</p>
                   <p className="text-galatic-sky/70 text-sm">{item.category}</p>
                 </div>
-                <span className="text-galatic-cream font-bold text-lg">{item.price}</span>
+                <span className="text-galatic-cream font-bold text-lg">৳{item.price}</span>
               </div>
             ))}
           </div>
