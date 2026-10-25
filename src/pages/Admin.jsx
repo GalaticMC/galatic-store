@@ -19,7 +19,7 @@ export default function Admin() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
-        navigate('/store'); 
+        navigate('/'); 
       } else {
         setCheckingAuth(false);
       }
